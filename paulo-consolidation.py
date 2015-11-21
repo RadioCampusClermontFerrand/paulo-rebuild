@@ -10,16 +10,14 @@ import os.path
 def usage():
     print "Missing parameters..."
 
-
-    
-
 def main(argv):
-    
     csvFile=""
     inputDir=""
     outputDir=""
+    interactiveThresold=None
+
     try:                                
-        opts, args = getopt.getopt(argv, "hc:i:o:", ["help", "csv=", "input-dir=", "output-dir="])
+        opts, args = getopt.getopt(argv, "hc:i:o:I:", ["help", "csv=", "input-dir=", "output-dir=", "interactive="])
     except getopt.GetoptError:          
         usage()                         
         sys.exit(2)      
@@ -34,6 +32,8 @@ def main(argv):
             inputDir = arg
         elif opt in ("-o", "--output-dir"): 
             outputDir = arg
+        elif opt in ("-I", "--interactive"):
+            interactiveThresold = float(arg)
             
     if csvFile == "":
         print "No csv file. Abort"
@@ -51,12 +51,12 @@ def main(argv):
     mp3files = paulo.charger_mp3(inputDir)
     print len(mp3files), "mp3"
 
-    nbgood=0
-    moved=0
-    movedManual=0
+    matchCount=0
+    autoMovedCount=0
+    manualMovedCount=0
     result = {}
     for entry in entries:
-        bestScore = 0
+        bestScore = interactiveThresold if interactiveThresold != None else 0.6
         for mp3file in mp3files:
             e_meta = entry.getMetaData()
             es_mp3file = mp3file.getMetaDatas()
@@ -66,24 +66,25 @@ def main(argv):
                     result[entry] = [score, mp3file]
                     bestScore = score
         if entry in result:
-            nbgood += 1
+            matchCount += 1
             if bestScore > 0.7:
-                moved += 1
+                autoMovedCount += 1
                 print "Automatic copy (" + str(bestScore) + "): " + outputDir + "/" + entry.getTargetFile() + " from " + result[entry][1].filename 
                 paulo.copy(outputDir + "/" + entry.getTargetFile(), result[entry][1].filename)
             else:
-                print "Score: " + str(bestScore) + "\n" + str(entry) + "\n" +  str(result[entry][1])
-                #if paulo.prompt("Do you want to copy this file?"):
-                    #print "Manual copy: " + outputDir + "/" + entry.getTargetFile()
-                    #paulo.copy(outputDir + "/" + entry.getTargetFile(), result[entry][1].filename)
-                    #movedManual += 1
-                #else:
-                    #print "Cancel copy"
+                if interactiveThresold != None:
+                    print "Score: " + str(bestScore) + "\n" + str(entry) + "\n" +  str(result[entry][1])
+                    if paulo.prompt("Do you want to copy this file?"):
+                        print "Manual copy: " + outputDir + "/" + entry.getTargetFile()
+                        paulo.copy(outputDir + "/" + entry.getTargetFile(), result[entry][1].filename)
+                        manualMovedCount += 1
+                    else:
+                        print "Cancel copy"
                     
 
-    print "Match number:", nbgood, "including: "
-    print "\tAutomatic copies:", moved
-    print "\tManual copies:", movedManual
+    print "Match number:", matchCount, "including: "
+    print "\tAutomatic copies:", autoMovedCount
+    print "\tManual copies:", manualMovedCount
 
 if __name__ == "__main__":
     main(sys.argv[1:])
