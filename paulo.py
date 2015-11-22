@@ -25,7 +25,7 @@ def copy(target, source):
         os.makedirs(os.path.dirname(target))
     shutil.copyfile(source, target)
 
-def charger_entries(csvFile, outputDir):
+def charger_entries(csvFile, outputDir, msg = True):
     result = []
     nbempty=0
     with open(csvFile, 'rb') as csvfile:
@@ -37,7 +37,8 @@ def charger_entries(csvFile, outputDir):
                 nbempty += 1
                 continue
             result.append(PauloEntry(*row))
-    print "Fichiers destination vides: ", nbempty 
+    if msg:
+        print "Fichiers destination vides: ", nbempty 
     return result
         
 def charger_mp3(inputDir):
