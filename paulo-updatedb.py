@@ -8,15 +8,14 @@ import os.path
 
 def usage():
     print "Example: "
-    print "./paulo-missingfiles.py -c backup-titres.csv -d /mnt/paulo/home/sound/ -u \"pgms,interview,interview 2,interview 3\""
+    print "./paulo-updatedb.py -c backup-titres.csv -d /mnt/paulo/home/sound/"
 
 def main(argv):
     csvFile=""
     dir=""
-    unwantedList = []
 
     try:                                
-        opts, args = getopt.getopt(argv, "hc:d:u:", ["help", "csv=", "dir=", "unwanted-list="])
+        opts, args = getopt.getopt(argv, "hc:d:", ["help", "csv=", "dir="])
     except getopt.GetoptError:          
         usage()                         
         sys.exit(2)      
@@ -29,8 +28,6 @@ def main(argv):
             csvFile = arg
         elif opt in ("-d", "--dir"): 
             dir = arg
-        elif opt in ("-u", "--unwanted-list"):
-            unwantedList = arg.split(",")
 
             
     if csvFile == "":
@@ -41,16 +38,13 @@ def main(argv):
         return
     
     
-    entries = paulo.loadEntries(csvFile, dir, False, False)
-    
-    filteredEntries = []
+    entries = paulo.loadEntries(csvFile, dir, True, False)
+
     for entry in entries:
-        if not entry.bande in unwantedList:
-            filteredEntries.append(entry)
-            
-    
-    for entry in filteredEntries:
-        print entry.toCSVLine()
+        if os.path.isfile(dir + "/" + entry.getTargetFile()):
+            print "UPDATE t_titre SET tit_file = \"" + entry.mp3file.replace('"', '\\"') + "\" WHERE tit_code = " + str(entry.idFile) + ";";
+        else:
+            print "UPDATE t_titre SET tit_file = \"\" WHERE tit_code = " + str(entry.idFile) + ";";
 
 
 if __name__ == "__main__":

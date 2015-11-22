@@ -25,15 +25,15 @@ def copy(target, source):
         os.makedirs(os.path.dirname(target))
     shutil.copyfile(source, target)
 
-def loadEntries(csvFile, outputDir, msg = True):
+def loadEntries(csvFile, outputDir, allEntries = False, msg = True):
     result = []
     nbempty=0
     with open(csvFile, 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         for row in reader:
-            if os.path.isfile(outputDir + "/" + row[0] + "/" + row[1]):
+            if not allEntries and os.path.isfile(outputDir + "/" + row[0] + "/" + row[1]):
                 continue
-            if row[1] == "":
+            if not allEntries and row[1] == "":
                 nbempty += 1
                 continue
             result.append(PauloEntry(*row))
