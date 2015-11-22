@@ -6,16 +6,17 @@ import getopt
 import sys
 import os.path
 
-
 def usage():
-    print "Missing parameters..."
+    print "Example: "
+    print "./paulo-missingfiles.py -c backup-titres.csv -d /mnt/paulo/home/sound/ -u \"pgms,interview,interview 2,interview 3\""
 
 def main(argv):
     csvFile=""
     dir=""
+    unwantedList = []
 
     try:                                
-        opts, args = getopt.getopt(argv, "hc:d:", ["help", "csv=", "dir="])
+        opts, args = getopt.getopt(argv, "hc:d:u:", ["help", "csv=", "dir=", "unwanted-list="])
     except getopt.GetoptError:          
         usage()                         
         sys.exit(2)      
@@ -28,6 +29,9 @@ def main(argv):
             csvFile = arg
         elif opt in ("-d", "--dir"): 
             dir = arg
+        elif opt in ("-u", "--unwanted-list"):
+            unwantedList = arg.split(",")
+
             
     if csvFile == "":
         print "No csv file. Abort"
@@ -36,9 +40,16 @@ def main(argv):
         print "No input dir. Abort"
         return
     
+    
     entries = paulo.loadEntries(csvFile, dir, False)
     
+    filteredEntries = []
     for entry in entries:
+        if not entry.bande in unwantedList:
+            filteredEntries.append(entry)
+            
+    
+    for entry in filteredEntries:
         print entry.toCSVLine()
 
 
