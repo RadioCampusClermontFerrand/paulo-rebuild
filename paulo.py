@@ -101,7 +101,11 @@ class PauloEntry:
         return self.mp3file + "\n" + str(self.metadata)
     def getTargetFile(self):
         return self.bande + "/" + self.mp3file
-
+    def toCSVLine(self):
+        return self.toCSVElem(self.bande) + "," + self.toCSVElem(self.mp3file) + "," + self.toCSVElem(self.metadata.title) + \
+            "," + self.toCSVElem(self.metadata.album) + "," + self.toCSVElem(self.metadata.artist) + "," + self.toCSVElem(self.style) + "," + self.toCSVElem(self.idFile)
+    def toCSVElem(self, string):
+        return "\""+str(string)+"\""
 
 
 class MediaFile:
