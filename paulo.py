@@ -25,7 +25,7 @@ def copy(target, source):
         os.makedirs(os.path.dirname(target))
     shutil.copyfile(source, target)
 
-def charger_entries(csvFile, outputDir, msg = True):
+def loadEntries(csvFile, outputDir, msg = True):
     result = []
     nbempty=0
     with open(csvFile, 'rb') as csvfile:
@@ -42,7 +42,7 @@ def charger_entries(csvFile, outputDir, msg = True):
     return result
 
   
-def charger_mp3(inputDir):
+def loadMP3(inputDir):
     result = []
     for root, dirs, files in os.walk(inputDir):
         for f in files:

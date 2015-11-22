@@ -51,10 +51,10 @@ def main(argv):
         print "No output dir. Abort"
         return
     
-    entries = paulo.charger_entries(csvFile, outputDir)
+    entries = paulo.loadEntries(csvFile, outputDir)
     print " ", len(entries), "loaded entries"
 
-    mp3files = paulo.charger_mp3(inputDir)
+    mp3files = paulo.loadMP3(inputDir)
     print " ", len(mp3files), "mp3"
     
     negativeAnswers = paulo.InvalidMatchings(negativeAnswersFile)
