@@ -36,7 +36,7 @@ def main(argv):
         print "No input dir. Abort"
         return
     
-    entries = paulo.charger_entries(csvFile, dir, False)
+    entries = paulo.loadEntries(csvFile, dir, False)
     
     for entry in entries:
         print entry.toCSVLine()
