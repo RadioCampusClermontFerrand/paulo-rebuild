@@ -99,9 +99,9 @@ class AudioMetaData:
         self.artist = artist
 
     def similaritySingleString(self, string):
-        return (5 * self.symSimilarityString(self.title, string) + \
-                    self.symSimilarityString(self.album, string) + \
-                    4 * self.symSimilarityString(self.artist, string)) / 10
+        return (5 * self.similarityString(self.title, string, True) + \
+                    self.similarityString(self.album, string, True) + \
+                    4 * self.similarityString(self.artist, string, True)) / 10
 
     def similarity(self, otherTitle):
         try:
@@ -114,14 +114,17 @@ class AudioMetaData:
     def symSimilarityString(self, pattern, string):
         return (self.similarityString(pattern, string) + self.similarityString(string, pattern)) / 2
 
-    def similarityString(self, pattern, string):
+    def similarityString(self, pattern, string, quick = False):
         if pattern is None and string is None:
             return 0.5
         elif pattern is None or string is None:
             return 0
         else:
             queryMatcher = difflib.SequenceMatcher(None, pattern.lower(), string.lower())
-            return queryMatcher.ratio()
+            if quick:
+                return queryMatcher.quick_ratio()
+            else:
+                return queryMatcher.ratio()
 
     def __str__(self):
         return "\tArtist: " + str(self.artist) + "\n\tTitle: " + str(self.title) + "\n\tAlbum: " + str(self.album)
