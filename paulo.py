@@ -130,7 +130,7 @@ class AudioMetaData:
         return "\tArtist: " + str(self.artist) + "\n\tTitle: " + str(self.title) + "\n\tAlbum: " + str(self.album)
 
 def nonify(string):
-    string = None if string == "\\N" else string
+    string = None if string == "N" else string
     return string
 
 class PauloEntry:
@@ -139,7 +139,7 @@ class PauloEntry:
         self.bande = bande
         self.mp3file = mp3file
         self.style = style
-        self.idFile = idFile
+        self.idFile = int(idFile)
         
     def getStartFileName(self):
         m = re.match(r"(?P<prefix>.*)_\d+.mp3", self.mp3file)
@@ -160,8 +160,13 @@ class PauloEntry:
         return self.toCSVElem(self.bande) + "," + self.toCSVElem(self.mp3file) + "," + self.toCSVElem(self.metadata.title) + \
             "," + self.toCSVElem(self.metadata.album) + "," + self.toCSVElem(self.metadata.artist) + "," + self.toCSVElem(self.style) + "," + self.toCSVElem(self.idFile)
         
-    def toCSVElem(self, string):
-        return "\""+str(string).replace('"', '\\"')+"\""
+    def toCSVElem(self, obj):
+        if obj == None:
+            return "\N"
+        elif type(obj) == int:
+            return str(obj)
+        else:
+            return "\""+str(obj).replace('"', '\\"')+"\""
 
     def getID(self):
         return self.getTargetFile()
