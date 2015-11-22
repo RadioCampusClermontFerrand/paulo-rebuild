@@ -64,7 +64,10 @@ def main(argv):
     autoMovedCount=0
     manualMovedCount=0
     result = {}
+    nbEntry=0
     for entry in entries:
+        print "Processing entry", nbEntry
+        nbEntry += 1
         bestScore = interactiveThresold if interactiveThresold != None else 0.6
         for mp3file in mp3files:
             if not negativeAnswers.hasEntry(entry.getID(), mp3file.getID()):

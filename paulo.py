@@ -47,7 +47,7 @@ def loadMP3(inputDir):
     for root, dirs, files in os.walk(inputDir):
         for f in files:
             if f.endswith(".mp3"): # or f.endswith(".wav"):
-                result.append(MediaFile(root + "/" + f))
+                result.append(MediaFile(root + "/" + f, inputDir))
                 #if len(result) == 200:
                     #return result
     return result
@@ -84,17 +84,32 @@ class InvalidMatchings:
             nb += len(self.answers[a])
         return nb
           
-        
+
+class RawAudioMetaData:
+    def __init__(self, string=""):
+        self.string = string
+    def __str__(self):
+        return self.string
+            
+
 class AudioMetaData:
     def __init__(self, title=None, album=None, artist=None):
         self.title = title
         self.album = album
         self.artist = artist
 
+    def similaritySingleString(self, string):
+        return (5 * self.symSimilarityString(self.title, string) + \
+                    self.symSimilarityString(self.album, string) + \
+                    4 * self.symSimilarityString(self.artist, string)) / 10
+
     def similarity(self, otherTitle):
-        return (5 * self.symSimilarityString(self.title, otherTitle.title) + \
-                self.symSimilarityString(self.album, otherTitle.album) + \
-                4 * self.symSimilarityString(self.artist, otherTitle.artist)) / 10
+        try:
+            self.similaritySingleString(otherTitle.string)
+        except AttributeError:
+            return (5 * self.symSimilarityString(self.title, otherTitle.title) + \
+                    self.symSimilarityString(self.album, otherTitle.album) + \
+                    4 * self.symSimilarityString(self.artist, otherTitle.artist)) / 10
 
     def symSimilarityString(self, pattern, string):
         return (self.similarityString(pattern, string) + self.similarityString(string, pattern)) / 2
@@ -150,11 +165,11 @@ class PauloEntry:
 
 
 class MediaFile:
-    def __init__(self, filename):
+    def __init__(self, filename, inputDir):
         self.filename = filename
         self.metadatas = []
         self.metadatas.append(self.loadMetadata())
-        #self.metadatas.append(self.estimateMetadataFromFileName())
+        self.metadatas.append(self.estimateMetadataFromFileName(inputDir))
         
     def loadMetadata(self):
         try:
@@ -166,9 +181,12 @@ class MediaFile:
         except:
             return AudioMetaData()
     
-    def estimateMetadataFromFileName(self):
-        # TODO
-        return AudioMetaData()
+    def estimateMetadataFromFileName(self, inputDir):
+        if self.filename.startswith(inputDir):
+            suffix = self.filename[len(inputDir):]
+        else:
+            suffix = self.filename
+        return RawAudioMetaData(suffix)
     
     def getMetaDatas(self):
         return self.metadatas
