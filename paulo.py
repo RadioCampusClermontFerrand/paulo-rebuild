@@ -29,7 +29,7 @@ def loadEntries(csvFile, outputDir, allEntries = False, msg = True):
     result = []
     nbempty=0
     with open(csvFile, 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        reader = csv.reader(csvfile, delimiter=',', quotechar='"', escapechar="\\")
         for row in reader:
             if not allEntries and os.path.isfile(outputDir + "/" + row[0] + "/" + row[1]):
                 continue
@@ -161,7 +161,7 @@ class PauloEntry:
             "," + self.toCSVElem(self.metadata.album) + "," + self.toCSVElem(self.metadata.artist) + "," + self.toCSVElem(self.style) + "," + self.toCSVElem(self.idFile)
         
     def toCSVElem(self, string):
-        return "\""+str(string)+"\""
+        return "\""+str(string).replace('"', '\\"')+"\""
 
     def getID(self):
         return self.getTargetFile()
