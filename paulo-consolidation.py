@@ -66,7 +66,7 @@ def main(argv):
     result = {}
     nbEntry=0
     for entry in entries:
-        print "Processing entry", nbEntry
+        print "Processing entry", nbEntry, "/", len(entries)
         nbEntry += 1
         bestScore = interactiveThresold if interactiveThresold != None else 0.6
         for mp3file in mp3files:
