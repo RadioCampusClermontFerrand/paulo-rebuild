@@ -38,9 +38,10 @@ def charger_entries(csvFile, outputDir, msg = True):
                 continue
             result.append(PauloEntry(*row))
     if msg:
-        print "Fichiers destination vides: ", nbempty 
+        print "  Empty target entries: ", nbempty 
     return result
-        
+
+  
 def charger_mp3(inputDir):
     result = []
     for root, dirs, files in os.walk(inputDir):
@@ -50,7 +51,39 @@ def charger_mp3(inputDir):
                 #if len(result) == 200:
                     #return result
     return result
-        
+
+
+class InvalidMatchings:
+    def __init__(self, filename):
+        self.answers = {}
+        if os.path.isfile(filename):
+            with open(filename, 'rb') as filename:
+                reader = csv.reader(filename, delimiter=',', quotechar='"')
+                for row in reader:
+                    self.addEntry(row[0], row[1])
+                
+
+    def save(self, filename):
+        if filename != "":
+            with open(filename, 'w') as f:
+                for entries in self.answers:
+                    for elements in self.answers[entries]:
+                        f.write("\"" + entries.replace('"', '\\"') + "\",\"" + elements.replace('"', '\\"') + "\"\n")
+    
+    def addEntry(self, element1, element2):
+        if self.answers.get(element1) == None:
+            self.answers[element1] = []
+        self.answers[element1].append(element2)
+    
+    def hasEntry(self, element1, element2):
+        return self.answers.get(element1) != None and element2 in self.answers[element1]
+    
+    def getNbAnswers(self):
+        nb = 0
+        for a in self.answers:
+            nb += len(self.answers[a])
+        return nb
+          
         
 class AudioMetaData:
     def __init__(self, title=None, album=None, artist=None):
@@ -98,15 +131,22 @@ class PauloEntry:
             return ""
     def getMetaData(self):
         return self.metadata
+    
     def __str__(self):
         return self.mp3file + "\n" + str(self.metadata)
+    
     def getTargetFile(self):
         return self.bande + "/" + self.mp3file
+    
     def toCSVLine(self):
         return self.toCSVElem(self.bande) + "," + self.toCSVElem(self.mp3file) + "," + self.toCSVElem(self.metadata.title) + \
             "," + self.toCSVElem(self.metadata.album) + "," + self.toCSVElem(self.metadata.artist) + "," + self.toCSVElem(self.style) + "," + self.toCSVElem(self.idFile)
+        
     def toCSVElem(self, string):
         return "\""+str(string)+"\""
+
+    def getID(self):
+        return self.getTargetFile()
 
 
 class MediaFile:
@@ -132,6 +172,9 @@ class MediaFile:
     
     def getMetaDatas(self):
         return self.metadatas
+
+    def getID(self):
+        return self.filename
 
     def __str__(self):
         return self.filename + "\n" + str(self.metadatas[0])
