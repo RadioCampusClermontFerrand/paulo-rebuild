@@ -94,7 +94,7 @@ def main(argv):
                         bestScore = score
         if entry in result:
             matchCount += 1
-            if bestScore > 0.9:
+            if bestScore > 0.8:
                 autoMovedCount += 1
                 print "Automatic copy (" + str(bestScore) + "): " + outputDir + "/" + entry.getTargetFile() + " from " + result[entry][1].filename 
                 paulo.copy(outputDir + "/" + entry.getTargetFile(), result[entry][1].filename)
