@@ -8,7 +8,7 @@ echo "Démarrage de MySQL"
 
 sleep 5
 echo "Mise à jour de la base"
-SQL="SELECT t_bande.ban_nom, tit_file, tit_nom, alb_nom, t_groupe.grp_nom, mus_nom, t_titre.tit_code 
+SQL="SELECT t_bande.ban_nom, tit_file, tit_nom, alb_nom, t_groupe.grp_nom, mus_nom, t_langue.lan_nom, t_rotation.rot_nom, t_titre.tit_code
     INTO OUTFILE '/tmp/backup-titres.csv' FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' LINES TERMINATED BY '\n' 
     FROM 
         t_titre
@@ -16,7 +16,9 @@ SQL="SELECT t_bande.ban_nom, tit_file, tit_nom, alb_nom, t_groupe.grp_nom, mus_n
     LEFT JOIN t_bande ON t_titre.ban_code=t_bande.ban_code
     LEFT JOIN t_type_musical ON t_musical.mus_code=t_type_musical.mus_code
     LEFT JOIN t_album ON t_album.alb_code = t_titre.alb_code
-    LEFT JOIN t_groupe ON t_groupe.grp_code=t_titre.grp_code"
+    LEFT JOIN t_groupe ON t_groupe.grp_code=t_titre.grp_code
+    LEFT JOIN t_langue ON t_langue.lan_code=t_titre.lan_code
+    LEFT JOIN t_rotation ON t_rotation.rot_code=t_titre.rot_code"
 
 mysql paulo3 -e "$SQL;"
 

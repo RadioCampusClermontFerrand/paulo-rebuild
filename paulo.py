@@ -25,6 +25,25 @@ def copy(target, source):
         os.makedirs(os.path.dirname(target))
     shutil.copyfile(source, target)
 
+def setTags(targetFile, entryDesc):
+    desc = mutagen.File(targetFile)
+
+    desc["TIT2"] = mutagen.id3.TIT2(encoding=0, text=entryDesc.metadata.title.decode("utf-8"))
+    if entryDesc.metadata.album != None:
+        desc["TALB"] = mutagen.id3.TALB(encoding=0, text=entryDesc.metadata.album.decode("utf-8"))
+    desc["TPE1"] = mutagen.id3.TPE1(encoding=0, text=entryDesc.metadata.artist.decode("utf-8"))
+    desc["TLAN"] = mutagen.id3.TLAN(encoding=0, text=entryDesc.lang.decode("utf-8"))
+    desc["TCON"] = mutagen.id3.TCON(encoding=0, text=entryDesc.style.decode("utf-8") + ";" + entryDesc.rotation.decode("utf-8"))
+
+    desc.save(v1 = 0)
+    pass
+
+def add2CSVLog(log, outputDir):
+    fileName = outputDir + "/restored-files.csv"
+    with open(fileName, "a") as myfile:
+        for l in log:
+            myfile.write(l + "\n")
+
 def loadEntries(csvFile, outputDir, allEntries = False, msg = True):
     result = []
     nbempty=0
@@ -42,12 +61,12 @@ def loadEntries(csvFile, outputDir, allEntries = False, msg = True):
     return result
 
   
-def loadMP3(inputDir):
+def loadMP3(inputDir, similarity):
     result = []
     for root, dirs, files in os.walk(inputDir):
         for f in files:
             if f.endswith(".mp3"): # or f.endswith(".wav"):
-                result.append(MediaFile(root + "/" + f, inputDir))
+                result.append(MediaFile(root + "/" + f, inputDir, similarity))
                 #if len(result) == 200:
                     #return result
     return result
@@ -134,11 +153,13 @@ def nonify(string):
     return string
 
 class PauloEntry:
-    def __init__(self, bande="", mp3file="", title="", album="", artist="", style="", idFile=0):
+    def __init__(self, bande="", mp3file="", title="", album="", artist="", style="", lang="", rotation="", idFile=0):
         self.metadata = AudioMetaData(nonify(title), nonify(album), nonify(artist))
         self.bande = bande
         self.mp3file = mp3file
         self.style = style
+        self.lang = lang
+        self.rotation = rotation
         self.idFile = int(idFile)
         
     def getStartFileName(self):
@@ -158,7 +179,7 @@ class PauloEntry:
     
     def toCSVLine(self):
         return self.toCSVElem(self.bande) + "," + self.toCSVElem(self.mp3file) + "," + self.toCSVElem(self.metadata.title) + \
-            "," + self.toCSVElem(self.metadata.album) + "," + self.toCSVElem(self.metadata.artist) + "," + self.toCSVElem(self.style) + "," + self.toCSVElem(self.idFile)
+            "," + self.toCSVElem(self.metadata.album) + "," + self.toCSVElem(self.metadata.artist) + "," + self.toCSVElem(self.lang) + "," + self.toCSVElem(self.rotation) + "," + self.toCSVElem(self.style) + "," + self.toCSVElem(self.idFile)
         
     def toCSVElem(self, obj):
         if obj == None:
@@ -173,11 +194,12 @@ class PauloEntry:
 
 
 class MediaFile:
-    def __init__(self, filename, inputDir):
+    def __init__(self, filename, inputDir, similarity):
         self.filename = filename
         self.metadatas = []
         self.metadatas.append(self.loadMetadata())
-        self.metadatas.append(self.estimateMetadataFromFileName(inputDir))
+        if similarity:
+            self.metadatas.append(self.estimateMetadataFromFileName(inputDir))
         
     def loadMetadata(self):
         try:
