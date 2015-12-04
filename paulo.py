@@ -33,7 +33,7 @@ def setTags(targetFile, entryDesc):
         desc["TALB"] = mutagen.id3.TALB(encoding=0, text=entryDesc.metadata.album.decode("utf-8"))
     desc["TPE1"] = mutagen.id3.TPE1(encoding=0, text=entryDesc.metadata.artist.decode("utf-8"))
     desc["TLAN"] = mutagen.id3.TLAN(encoding=0, text=entryDesc.lang.decode("utf-8"))
-    desc["TCON"] = mutagen.id3.TCON(encoding=0, text=entryDesc.style.decode("utf-8") + ";" + entryDesc.rotation.decode("utf-8"))
+    desc["TCON"] = mutagen.id3.TCON(encoding=0, text=entryDesc.style.decode("utf-8") + ";" + entryDesc.rotation.decode("utf-8") + ";" + entryDesc.lang.decode("utf-8"))
 
     desc.save(v1 = 0)
     pass
